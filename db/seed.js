@@ -1,4 +1,4 @@
-const { client, getAllUsers, createUser, updateUser, getUserById, createPost, updatePost, getAllPosts, getPostsByUser, createPostTag, createTags, addTagsToPost, getPostById } = require('./index');
+const { client, getAllUsers, createUser, updateUser, getUserById, createPost, updatePost, getAllPosts, getPostsByUser, createPostTag, createTags, addTagsToPost, getPostById, getPostsByTagName } = require('./index');
 
 async function createInitialUsers (){
     try {
@@ -127,6 +127,10 @@ async function testDB(){
         const posts = await getAllPosts();
         console.log("result:", posts)
 
+        console.log("calling getUserById with 1")
+        const albert = await getUserById(1)
+        console.log("result:", albert)
+
         console.log("calling updatePost on posts[0]")
         const updatePostResult = await updatePost(posts[0].id, {
             title: "New Title",
@@ -136,13 +140,13 @@ async function testDB(){
 
         console.log("calling updatePost on posts[1], only updating tags")
         const updatePostTagsResult = await updatePost(posts[1].id, {
-            tags: ["#youcandoanything", "redfish", "#bluefish"]
+            tags: ["#youcandoanything", "#redfish", "#bluefish"]
         })
         console.log("Result:", updatePostTagsResult)
 
-        console.log("calling getUserById with 1")
-        const albert = await getUserById(1)
-        console.log("result:", albert)
+        console.log("calling getPostsByTagName with #happy")
+        const postsWithHappy = await getPostsByTagName("#happy")
+        console.log("Result:", postsWithHappy)
 
         console.log('finished database test');
     } catch(error) {

@@ -19,7 +19,7 @@ async function getAllPosts(){
             `SELECT id FROM posts;`
         )
         const posts = await Promise.all(postIds.map(
-            post=>getPostById(post.id)
+            post => getPostById(post.id)
         ))
         return posts;
     } catch(error){
@@ -241,6 +241,23 @@ async function getPostById(postId){
     }
 }
 
+async function getPostsByTagName(tagName){
+    try {
+        const {rows: postIds} = await client.query(`
+        SELECT posts.id
+        FROM posts
+        JOIN post_tags ON posts.id = post_tags."postId"
+        JOIN tags ON tags.id = post_tags."tagId"
+        WHERE tags.name = $1;
+        `, [tagName])
+
+        return await Promise.all(postIds.map(
+            post => getPostById(post.id)
+        ))
+    } catch (error) {
+        throw error
+    }
+}
 
 
-module.exports = { client, getAllUsers, createUser, updateUser, createPost, updatePost, getAllPosts, getPostsByUser, getUserById, createTags, addTagsToPost, getPostById, createPostTag }
+module.exports = { client, getAllUsers, createUser, updateUser, createPost, updatePost, getAllPosts, getPostsByUser, getUserById, createTags, addTagsToPost, getPostById, createPostTag, getPostsByTagName }
