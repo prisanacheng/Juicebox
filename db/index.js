@@ -119,22 +119,41 @@ async function updateUser(id, fields = {}){
 }
 
 
-async function updatePost(id, fields = {}){
+async function updatePost(postId, fields = {}){
+    const {tags} = fields;
+    delete fields.tags
+
+
     const setString = Object.keys(fields).map(
         (key, index) => `"${key}"=$${index + 1}`
     ).join(',')
-    if(setString.length === 0){
-        return
-    }
-    try{
-        const { rows: [post]} = await client.query(`
-        UPDATE posts
-        SET ${setString}
-        WHERE id = ${id}
-        RETURNING *;
-        `, Object.values(fields))
+    try {
+        if (setString.length > 0){
+            await client.query(`
+            UPDATE posts
+            SET ${setString}
+            WHERE id = ${postId}
+            RETURNING *;
+            `, Object.values(fields))
+        }
+        if (tags === undefined) {
+            return await getPostById(postId)
+        }
+        const tagList = await createTags(tags)
+        const tagListIdString = tagList.map(
+            tag => `${tag.id}`
+        ).join(', ')
         
-        return post;
+        await client.query(`
+        DELETE FROM post_tags
+        WHERE "tagId"
+        NOT IN (${tagListIdString})
+        AND "postId" = $1;
+        `, [postId])
+
+        await addTagsToPost(postId, tagList)
+    
+        return await getPostById(postId);
     } catch(error){
         throw error
     }
