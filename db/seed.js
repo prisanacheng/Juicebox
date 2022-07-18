@@ -1,4 +1,4 @@
-const { client, getAllUsers, createUser, updateUser, getUserById, createPost, updatePost, getAllPosts, getPostsByUser } = require('./index');
+const { client, getAllUsers, createUser, updateUser, getUserById, createPost, updatePost, getAllPosts, getPostsByUser, createPostTag, createTags, addTagsToPost, getPostById } = require('./index');
 
 async function createInitialUsers (){
     try {
@@ -38,8 +38,19 @@ async function createInitialPosts(){
         console.log("error creating posts")
         throw error
     }
+}
 
+async function createInitialTags(){
+    try{
+        console.log("starting to create tags...")
 
+        const [happy, sad, inspo, catman] = await createTags([
+            "#happy", 
+            "#worst-day-ever",
+            "youcandoanything",
+            
+        ])
+    }
 }
 
 async function dropTables() {
