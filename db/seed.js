@@ -40,19 +40,6 @@ async function createInitialPosts(){
     }
 }
 
-async function createInitialTags(){
-    try{
-        console.log("starting to create tags...")
-
-        const [happy, sad, inspo, catman] = await createTags([
-            "#happy", 
-            "#worst-day-ever",
-            "youcandoanything",
-            
-        ])
-    }
-}
-
 async function dropTables() {
     try {
         console.log('starting to drop tables...')
@@ -96,8 +83,8 @@ async function createTables() {
             );
             CREATE TABLE post_tags(
                 "postId" INTEGER REFERENCES posts(id),
-                "tagsId" INTEGER REFERENCES tags(id), 
-                UNIQUE ("postId", "tagsId")
+                "tagId" INTEGER REFERENCES tags(id), 
+                UNIQUE ("postId", "tagId")
             );
         `);
         console.log('finished building table')
@@ -115,6 +102,7 @@ async function rebuildDB(){
         await createTables();
         await createInitialUsers();
         await createInitialPosts();
+        await createInitialTags();
     } catch(error) {
         throw error
     } 
@@ -154,6 +142,28 @@ async function testDB(){
     } catch(error) {
         console.error('error testing database')
         throw error;
+    }
+}
+
+async function createInitialTags(){
+    try{
+        console.log("starting to create tags...")
+
+        const [happy, sad, inspo, catman] = await createTags([
+            "#happy", 
+            "#worst-day-ever",
+            "#youcandoanything",
+            "#catmandoeverything"
+        ])
+        const [postOne, postTwo, postThree] = await getAllPosts()
+
+        await addTagsToPost(postOne.id, [happy,inspo])
+        await addTagsToPost(postTwo.id, [sad, inspo])
+        await addTagsToPost(postThree.id, [happy, catman, inspo])
+        console.log("finished creating tags")
+    } catch(error){
+        console.log("error creating tags")
+        throw error
     }
 }
 

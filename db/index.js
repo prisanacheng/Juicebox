@@ -15,10 +15,13 @@ async function getAllUsers(){
 
 async function getAllPosts(){
     try{
-        const {rows} = await client.query(
-            `SELECT * FROM posts;`
+        const {rows: postIds} = await client.query(
+            `SELECT id FROM posts;`
         )
-        return rows;
+        const posts = await Promise.all(postIds.map(
+            post=>getPostById(post.id)
+        ))
+        return posts;
     } catch(error){
         throw error
     }
@@ -26,13 +29,16 @@ async function getAllPosts(){
 
 async function getPostsByUser (userId){
     try{
-        const {rows} = await client.query(
+        const {rows: postIds} = await client.query(
             `
-            SELECT * FROM posts
+            SELECT id FROM posts
             WHERE "authorId" = ${userId};
             `
         )
-        return rows
+        const posts = await Promise.all(postIds.map(
+            post => getPostById( post.id )
+        ));
+        return posts;
     } catch(error){
         throw error
     }
@@ -191,7 +197,8 @@ async function addTagsToPost(postId, tagList){
 async function getPostById(postId){
     try{
         const {rows: [post]} = await client.query(`
-        SELECT * FROM posts
+        SELECT * 
+        FROM posts
         WHERE id = $1;
         `, [postId])
         const {rows: tags} = await client.query(`
@@ -209,7 +216,7 @@ async function getPostById(postId){
         post.author = author;
 
         delete post.authorId
-        return post
+        return post 
     } catch(error){
         throw error
     }
