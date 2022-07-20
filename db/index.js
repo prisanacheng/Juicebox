@@ -82,14 +82,16 @@ async function createUser({
     }
 }
 
-async function createPost ({authorId, title, content}){
+async function createPost ({authorId, title, content, tags = []}){
     try {
         const {rows: [post]} = await client.query(`
             INSERT INTO posts("authorId", title, content)
             VALUES ($1, $2, $3)
             RETURNING *;
         `, [authorId, title, content])
-        return post;
+        const tagList = await createTags(tags);
+
+        return await addTagsToPost(post.id, tagList);
     } catch(error) {
         throw error
     }
@@ -219,7 +221,15 @@ async function getPostById(postId){
         SELECT * 
         FROM posts
         WHERE id = $1;
-        `, [postId])
+        `, [postId]);
+
+        if(!post){
+            throw {
+                name: "PostNotFoundError",
+                message: "could not find a post with that postId"
+            }
+        }
+
         const {rows: tags} = await client.query(`
         SELECT tags.*
         FROM tags 

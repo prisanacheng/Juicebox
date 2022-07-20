@@ -35,7 +35,7 @@ usersRouter.post('/login', async (req, res, next) => {
                 username
             }, process.env.JWT_SECRET, {expiresIn: '1w'}
             );
-            res.send({message: "You're logged in"})
+            res.send({message: "You're logged in", token})
         } else {
             next({
                 name: 'IncorrectCredentialsError',
