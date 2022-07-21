@@ -90,7 +90,6 @@ async function createPost ({authorId, title, content, tags = []}){
             RETURNING *;
         `, [authorId, title, content])
         const tagList = await createTags(tags);
-
         return await addTagsToPost(post.id, tagList);
     } catch(error) {
         throw error
@@ -162,10 +161,10 @@ async function updatePost(postId, fields = {}){
 }
 
 async function createTags(tagList){
+
     if(tagList.length === 0){
         return
     }
-
     const insertValues = tagList.map((_, index) => 
     `$${index + 1}`).join('), (');
 
