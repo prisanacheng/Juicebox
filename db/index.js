@@ -236,7 +236,7 @@ async function getPostById(postId){
         WHERE post_tags."postId" = $1;
         `,[postId])
         const {rows: [author]} = await client.query(`
-        SELECT id, username, name, location
+        SELECT id, username, name, location, active
         FROM users
         WHERE id = $1;
         `, [post.authorId])
